@@ -12,3 +12,12 @@ type Task struct {
 	UpdatedAt   time.Time `db:"updated_at" json:"updated_at"`
 	DeletedAt   time.Time `db:"deleted_at" json:"deleted_at"`
 }
+
+const (
+	StatusPending   = "pending"
+	StatusCompleted = "completed"
+
+	PriorityLow    = "low"
+	PriorityMedium = "medium"
+	PriorityHigh   = "high"
+)
