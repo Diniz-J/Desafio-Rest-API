@@ -40,3 +40,34 @@ func (r *TaskRepository) Save(ctx context.Context, task *model.Task) error {
 
 	return nil
 }
+
+func (r *TaskRepository) FindByID(ctx context.Context, id string) (*model.Task, error) {
+	query := `
+	SELECT id, title, description, status, priority, created_at, updated_at, deleted_at
+ 	FROM tasks
+ 	WHERE id = ?`
+
+	row := r.db.QueryRowContext(ctx, query, id)
+
+	var task model.Task
+	err := row.Scan(
+		&task.ID,
+		&task.Title,
+		&task.Description,
+		&task.Status,
+		&task.Priority,
+		&task.CreatedAt,
+		&task.UpdatedAt,
+		&task.DeletedAt,
+	)
+
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("falha ao salvar task no banco:%w", err)
+	}
+
+	return &task, nil
+}
