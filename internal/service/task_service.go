@@ -1,8 +1,13 @@
 package service
 
 import (
-	"fmt"
+	"context"
+	"errors"
+	"testing"
+	"time"
 
+	"github.com/DinizJ/desafio/internal/model"
+	"github.com/DinizJ/desafio/internal/repository"
 	"github.com/DinizJ/desafio/task"
 	"github.com/google/uuid"
 )
@@ -12,21 +17,34 @@ import (
 // Validate
 
 type TaskService struct {
-	//repository
+	repo *repository.TaskRepository
 }
 
-func (s *TaskService) CreateId() (string, error) {
+func (s *TaskService) CreateTask(ctx context.Context, title string, description string) (*model.Task, error) {
 
-	id := uuid.New().String()
-
-	t := &Task{
-		ID: id,
-	}
-	if err := s.repo.Save(t); err != nil {
-		return "", fmt.Errorf("Cannot create task: %w", err)
+	if title == "" {
+		return nil, errors.New("title is required")
 	}
 
-	return id, nil
+	if len(title) > 255 {
+		return nil, errors.New("title is too long(max 255)")
+	}
+
+	//Cria a TASK
+	task := &model.Task{
+		ID:          uuid.New().String(), // Gera UUID
+		Title:       title,
+		Description: description,
+		Status:      model.StatusPending,
+		Priority:    model.PriorityMedium, // Default
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	//Salva no banco pelo Repository
+	if err := s.repo.Save(ctx, task); err != nil {
+		return nil, err
+	}
+
+	return task, nil
 }
-
-func (s *TaskService) CreateTitle()
