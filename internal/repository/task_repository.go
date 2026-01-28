@@ -122,3 +122,26 @@ func (r *TaskRepository) FindAll(ctx context.Context, status string) ([]model.Ta
 
 	return tasks, nil
 }
+
+//Update
+
+func (r *TaskRepository) Update(ctx context.Context, task *model.Task) error {
+	query := `
+	UPDATE tasks
+	SET title = ?, description = ?, status = ?, priority = ?, updated_at = ?
+	WHERE id = ?
+	`
+
+	_, err := r.db.ExecContext(ctx, query,
+		task.Title,
+		task.Description,
+		task.Status,
+		task.Priority,
+		task.UpdatedAt,
+		task.ID,
+	)
+	if err != nil {
+		return fmt.Errorf("erro ao atualizar tasks:%w", err)
+	}
+	return nil
+}
