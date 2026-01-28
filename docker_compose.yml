@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  main_db:
+    image: mysql:8.0
+    container_name: main_db
+    env_file:
+      - .env
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data/db:/var/lib/mysql
+

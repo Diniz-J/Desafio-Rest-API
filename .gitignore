@@ -1,0 +1,13 @@
+# IDE
+.idea/
+
+# Environment variables
+.env
+
+# Go build
+/bin/
+/dist/
+*.exe
+
+# Logs
+*.log
