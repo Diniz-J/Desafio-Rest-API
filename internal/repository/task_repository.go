@@ -35,11 +35,13 @@ func (r *TaskRepository) Save(ctx context.Context, task *model.Task) error {
 	)
 
 	if err != nil {
-		return fmt.Errorf("falha ao salvar task no banco:%w", err)
+		return fmt.Errorf("erro ao salvar task no banco:%w", err)
 	}
 
 	return nil
 }
+
+//FindByID
 
 func (r *TaskRepository) FindByID(ctx context.Context, id string) (*model.Task, error) {
 	query := `
@@ -66,8 +68,57 @@ func (r *TaskRepository) FindByID(ctx context.Context, id string) (*model.Task, 
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("falha ao salvar task no banco:%w", err)
+		return nil, fmt.Errorf("erro ao buscar id no banco:%w", err)
 	}
 
 	return &task, nil
+}
+
+//FindAll
+
+func (r *TaskRepository) FindAll(ctx context.Context, status string) ([]model.Task, error) {
+	query := `
+ 		SELECT id, title, description, status, priority, created_at, updated_at, deleted_at
+		FROM tasks
+	`
+
+	var rows *sql.Rows
+	var err error
+
+	if status != "" {
+		query += " WHERE status = ? "
+		rows, err = r.db.QueryContext(ctx, query, status)
+	} else {
+		rows, err = r.db.QueryContext(ctx, query)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("erro ao executar query de tasks:%w", err)
+	}
+	defer rows.Close()
+
+	var tasks []model.Task
+	for rows.Next() {
+		var task model.Task
+		err := rows.Scan(
+			&task.ID,
+			&task.Title,
+			&task.Description,
+			&task.Status,
+			&task.Priority,
+			&task.CreatedAt,
+			&task.UpdatedAt,
+			&task.DeletedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("erro ao ler dados de tasks:%w", err)
+		}
+		tasks = append(tasks, task)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("erro ao percorrer resultados de tasks:%w", err)
+	}
+
+	return tasks, nil
 }
