@@ -145,3 +145,10 @@ func (r *TaskRepository) Update(ctx context.Context, task *model.Task) error {
 	}
 	return nil
 }
+
+func (r *TaskRepository) Delete(ctx context.Context, id string) error {
+	query := `
+		DELETE FROM tasks WHERE id = ?`
+	_, err := r.db.ExecContext(ctx, query, id)
+	return fmt.Errorf("erro ao deletar task:%w", err)
+}
