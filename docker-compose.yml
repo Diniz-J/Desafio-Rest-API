@@ -10,4 +10,10 @@ services:
       - "3306:3306"
     volumes:
       - ./data/db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
 
+volumes:
+  mysql_data:
