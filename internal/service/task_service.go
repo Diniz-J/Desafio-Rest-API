@@ -8,7 +8,6 @@ import (
 
 	"github.com/DinizJ/desafio/internal/model"
 	"github.com/DinizJ/desafio/internal/repository"
-	"github.com/DinizJ/desafio/task"
 	"github.com/google/uuid"
 )
 
@@ -123,3 +122,32 @@ func TestCreateTask(t *testing.T) {
 			wantErr:     false,
 		},
 	}
+
+	// Mock repository (veremos depois como fazer)
+	mockRepo := &mockRepository{}
+	service := &TaskService{repo: mockRepo}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			task, err := service.CreateTask(context.Background(), tt.title, tt.description)
+
+			//verifica erro
+			if tt.wantErr && err == nil {
+				t.Errorf("expected error, got nil")
+			}
+			if !tt.wantErr && err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+
+			//Caso sucesso verifica resultado
+			if !tt.wantErr {
+				if task.Title != tt.title {
+					t.Errorf("expected %q, got %q", tt.title, task.Title)
+				}
+				if task.Status != model.StatusPending {
+					t.Errorf("expected status pending, got %q", task.Status)
+				}
+			}
+		})
+	}
+}
