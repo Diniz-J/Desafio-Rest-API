@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/gorilla/mux"
+
 	"github.com/DinizJ/desafio/internal/service"
 )
 
@@ -126,14 +128,14 @@ func (h *TaskHandler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	if id == nil {
+	if id == "" {
 		http.Error(w, "id is required", http.StatusBadRequest)
 		return
 	}
 
 	err := h.service.DeleteTask(r.Context(), id)
 	if err != nil {
-		if err.Error == "not found" {
+		if err.Error == nil {
 			http.Error(w, "task not found", http.StatusNotFound)
 			return
 		}
