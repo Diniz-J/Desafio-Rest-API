@@ -55,3 +55,25 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to encode response", http.StatusInternalServerError)
 	}
 }
+
+func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	task, err := h.service.GetTask(r.Context(), id)
+	if err != nil {
+		http.Error(w, "failed to get task", http.StatusInternalServerError)
+		return
+	}
+
+	if task == nil {
+		http.Error(w, "task not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(task); err != nil {
+		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+	}
+}
