@@ -109,6 +109,40 @@ func (s *TaskService) DeleteTask(ctx context.Context, id string) error {
 	return nil
 }
 
+// ------------------------UPDATE TASK--------------------------------
+func (s *TaskService) UpdateTask(
+	ctx context.Context, id string, title string, description string, status string, priority string,
+) (*model.Task, error) {
+	task, err := s.GetTask(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if task == nil {
+		return nil, errors.New("task not found")
+	}
+
+	if title != "" {
+		task.Title = title
+	}
+	if description != "" {
+		task.Description = description
+	}
+	if status != "" {
+		task.Status = status
+	}
+	if priority != "" {
+		task.Priority = priority
+	}
+
+	err = s.repo.Update(ctx, task)
+	if err != nil {
+		return nil, err
+	}
+
+	return task, nil
+}
+
 func TestCreateTask(t *testing.T) {
 	tests := []struct {
 		name        string
