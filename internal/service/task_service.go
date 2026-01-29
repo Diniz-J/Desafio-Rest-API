@@ -48,3 +48,19 @@ func (s *TaskService) CreateTask(ctx context.Context, title string, description 
 
 	return task, nil
 }
+
+func (s *TaskService) GetTask(ctx context.Context, id string) (*model.Task, error) {
+
+	//Valida se id é uuid valido
+	task, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Repo retorna nil se não encontrou
+	if task == nil {
+		return nil, errors.New("task not found")
+	}
+
+	return task, nil
+}
