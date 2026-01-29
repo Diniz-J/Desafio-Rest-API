@@ -118,3 +118,27 @@ func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to encode response", http.StatusInternalServerError)
 	}
 }
+
+func (h *TaskHandler) DeleteTask(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	if id == nil {
+		http.Error(w, "id is required", http.StatusBadRequest)
+		return
+	}
+
+	err := h.service.DeleteTask(r.Context(), id)
+	if err != nil {
+		if err.Error == "not found" {
+			http.Error(w, "task not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "failed to delete task", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNoContent)
+}
