@@ -11,6 +11,11 @@ type TaskHandler struct {
 	service *service.TaskService
 }
 
+// Adjust Layers
+func NewTaskHandler(svc *service.TaskService) *TaskHandler {
+	return &TaskHandler{service: svc}
+}
+
 // Cria nova tafera
 
 func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
