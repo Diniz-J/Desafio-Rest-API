@@ -158,7 +158,7 @@ func TestCompleteTask(t *testing.T) {
 	service := &TaskService{repo: mockRepo}
 
 	//Arrange
-	mockRepo.SetupTask(&Task{ID: "1", Title: "Test", Status: StatusPending})
+	mockRepo.SetupTask(&model.Task{ID: "1", Title: "Test", Status: model.StatusPending})
 
 	//Act
 	task, err := service.CompleteTask(context.Background(), "1")
