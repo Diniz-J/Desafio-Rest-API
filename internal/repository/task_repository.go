@@ -17,6 +17,7 @@ type TaskRepository struct {
 }
 
 // Save put new task
+
 func (r *TaskRepository) Save(ctx context.Context, task *model.Task) error {
 	query := `
 		INSERT INTO tasks (id, title, description, status, priority, created_at, updated_at, deleted_at)
@@ -145,6 +146,8 @@ func (r *TaskRepository) Update(ctx context.Context, task *model.Task) error {
 	}
 	return nil
 }
+
+//Delete
 
 func (r *TaskRepository) Delete(ctx context.Context, id string) error {
 	query := `
