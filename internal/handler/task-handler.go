@@ -101,7 +101,7 @@ func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := h.service.Update(r.Context(), id, req.Title, req.Description, req.Status, req.Priority)
+	task, err := h.service.UpdateTask(r.Context(), id, req.Title, req.Description, req.Status, req.Priority)
 	if err != nil {
 		http.Error(w, "failed to update task", http.StatusInternalServerError)
 		return
