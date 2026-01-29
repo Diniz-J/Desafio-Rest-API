@@ -17,7 +17,7 @@ type TaskRepository struct {
 	db *sql.DB // connect
 }
 
-//Adjust Layers
+// Adjust Layers
 func NewTaskRepository(db *sql.DB) *TaskRepository {
 	return &TaskRepository{
 		db: db,

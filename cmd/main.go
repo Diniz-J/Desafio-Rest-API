@@ -40,8 +40,8 @@ func main() {
 
 	//Inicializa as layers
 	repo := repository.NewTaskRepository(db)
-	svc := service.TaskService(repo)
-	hdl := handler.TaskHandler(svc)
+	svc := service.NewTaskService(repo)
+	hdl := handler.NewTaskHandler(svc)
 
 	//Config das rotas
 	mux := http.NewServeMux()
