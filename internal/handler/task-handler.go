@@ -16,7 +16,7 @@ func NewTaskHandler(svc *service.TaskService) *TaskHandler {
 	return &TaskHandler{service: svc}
 }
 
-//--------------------------CREATE TASK-------------------------------
+// --------------------------CREATE TASK-------------------------------
 func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 
 	//Parse request
@@ -55,7 +55,7 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//--------------------------GET TASK-------------------------------
+// --------------------------GET TASK-------------------------------
 func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -78,7 +78,7 @@ func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-////--------------------------UPDATE TASK-------------------------------
+// //--------------------------UPDATE TASK-------------------------------
 func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -120,7 +120,7 @@ func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//--------------------------DELETE TASK-------------------------------
+// --------------------------DELETE TASK-------------------------------
 func (h *TaskHandler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -145,12 +145,12 @@ func (h *TaskHandler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-//--------------------------LIST TASK-------------------------------
-func (h *TaskHandler) ListTasks(w http.ResponseWriter, r *http.Request) {
+// --------------------------LIST TASK-------------------------------
+func (h *TaskHandler) ListTask(w http.ResponseWriter, r *http.Request) {
 
 	status := r.URL.Query().Get("status")
 
-	tasks, err := h.service.ListTasks(r.Context(), status)
+	tasks, err := h.service.ListTask(r.Context(), status)
 	if err != nil {
 		http.Error(w, "failed to list tasks", http.StatusInternalServerError)
 		return
@@ -159,6 +159,33 @@ func (h *TaskHandler) ListTasks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(tasks); err != nil {
+		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+	}
+}
+
+func (h *TaskHandler) CompleteTask(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	if id == "" {
+		http.Error(w, "id is required", http.StatusBadRequest)
+		return
+	}
+
+	task, err := h.service.CompleteTask(r.Context(), id)
+	if err != nil {
+		http.Error(w, "failed to complete task", http.StatusInternalServerError)
+		return
+	}
+	if task == nil {
+		http.Error(w, "task not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(task); err != nil {
 		http.Error(w, "failed to encode response", http.StatusInternalServerError)
 	}
 }
