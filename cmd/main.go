@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"os"
 )
@@ -15,5 +16,12 @@ func main() {
 
 	dsn := dbUser + ":" + dbPassword + "@tcp(" + dbHost + ":" + dbPort + ")/" + dbName
 	log.Printf("Conectando em: %s", dsn)
+
+	//conectar ao banco
+	db err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Fatalf("Erro ao conectar: %s", err)
+	}
+	defer db.Close()
 
 }
