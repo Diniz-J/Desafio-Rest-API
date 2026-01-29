@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -19,6 +20,7 @@ type TaskService struct {
 	repo *repository.TaskRepository
 }
 
+// ------------------------CREATE TASK--------------------------------
 // Adjust Layers
 func NewTaskService(repo *repository.TaskRepository) *TaskService {
 	return &TaskService{repo: repo}
@@ -53,6 +55,7 @@ func (s *TaskService) CreateTask(ctx context.Context, title string, description 
 	return task, nil
 }
 
+// ------------------------GET TASK--------------------------------
 func (s *TaskService) GetTask(ctx context.Context, id string) (*model.Task, error) {
 
 	//Valida se id é uuid valido
@@ -71,6 +74,7 @@ func (s *TaskService) GetTask(ctx context.Context, id string) (*model.Task, erro
 
 // Marca como concluída
 
+// ------------------------COMPLETE TASK--------------------------------
 func (s *TaskService) CompleteTask(ctx context.Context, id string) (*model.Task, error) {
 	task, err := s.GetTask(ctx, id)
 	if err != nil {
@@ -90,6 +94,69 @@ func (s *TaskService) CompleteTask(ctx context.Context, id string) (*model.Task,
 	}
 
 	return task, nil
+}
+
+// ------------------------DELETE TASK--------------------------------
+func (s *TaskService) DeleteTask(ctx context.Context, id string) error {
+
+	task, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if task == nil {
+		return errors.New("task not found")
+	}
+
+	if err := s.repo.Delete(ctx, id); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ------------------------UPDATE TASK--------------------------------
+func (s *TaskService) UpdateTask(
+	ctx context.Context, id string, title string, description string, status string, priority string,
+) (*model.Task, error) {
+	task, err := s.GetTask(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if task == nil {
+		return nil, errors.New("task not found")
+	}
+
+	if title != "" {
+		task.Title = title
+	}
+	if description != "" {
+		task.Description = description
+	}
+	if status != "" {
+		task.Status = status
+	}
+	if priority != "" {
+		task.Priority = priority
+	}
+
+	err = s.repo.Update(ctx, task)
+	if err != nil {
+		return nil, err
+	}
+
+	return task, nil
+}
+
+// ------------------------LIST TASK--------------------------------
+func (s *TaskService) ListTask(ctx context.Context, status string) ([]*model.Task, error) {
+
+	tasks, err := s.repo.FindAll(ctx, status)
+	if err != nil {
+		return nil, fmt.Errorf("Error listing tasks: %w", err)
+	}
+	return tasks, nil
 }
 
 func TestCreateTask(t *testing.T) {
