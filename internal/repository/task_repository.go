@@ -17,6 +17,13 @@ type TaskRepository struct {
 	db *sql.DB // connect
 }
 
+//Adjust Layers
+func NewTaskRepository(db *sql.DB) *TaskRepository {
+	return &TaskRepository{
+		db: db,
+	}
+}
+
 // Save put new task
 
 func (r *TaskRepository) Save(ctx context.Context, task *model.Task) error {
