@@ -150,7 +150,7 @@ func (s *TaskService) UpdateTask(
 }
 
 // ------------------------LIST TASK--------------------------------
-func (s *TaskService) ListTask(ctx context.Context, status string) ([]*model.Task, error) {
+func (s *TaskService) ListTask(ctx context.Context, status string) ([]model.Task, error) {
 
 	tasks, err := s.repo.FindAll(ctx, status)
 	if err != nil {
