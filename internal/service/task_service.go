@@ -151,3 +151,23 @@ func TestCreateTask(t *testing.T) {
 		})
 	}
 }
+
+// Teste simples
+func TestCompleteTask(t *testing.T) {
+	mockRepo := &mockRepository{}
+	service := &TaskService{repo: mockRepo}
+
+	//Arrange
+	mockRepo.SetupTask(&Task{ID: "1", Title: "Test", Status: StatusPending})
+
+	//Act
+	task, err := service.CompleteTask(context.Background(), "1")
+
+	//Assert
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if task.Status != model.StatusCompleted {
+		t.Errorf("expected status completed, got %q", task.Status)
+	}
+}
