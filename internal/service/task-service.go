@@ -19,6 +19,7 @@ type TaskService struct {
 	repo *repository.TaskRepository
 }
 
+// ------------------------CREATE TASK--------------------------------
 func (s *TaskService) CreateTask(ctx context.Context, title string, description string) (*model.Task, error) {
 
 	if title == "" {
@@ -48,6 +49,7 @@ func (s *TaskService) CreateTask(ctx context.Context, title string, description 
 	return task, nil
 }
 
+// ------------------------GET TASK--------------------------------
 func (s *TaskService) GetTask(ctx context.Context, id string) (*model.Task, error) {
 
 	//Valida se id é uuid valido
@@ -66,6 +68,7 @@ func (s *TaskService) GetTask(ctx context.Context, id string) (*model.Task, erro
 
 // Marca como concluída
 
+// ------------------------COMPLETE TASK--------------------------------
 func (s *TaskService) CompleteTask(ctx context.Context, id string) (*model.Task, error) {
 	task, err := s.GetTask(ctx, id)
 	if err != nil {
@@ -85,6 +88,25 @@ func (s *TaskService) CompleteTask(ctx context.Context, id string) (*model.Task,
 	}
 
 	return task, nil
+}
+
+// ------------------------DELETE TASK--------------------------------
+func (s *TaskService) DeleteTask(ctx context.Context, id string) error {
+
+	task, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if task == nil {
+		return errors.New("task not found")
+	}
+
+	if err := s.repo.Delete(ctx, id); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func TestCreateTask(t *testing.T) {
