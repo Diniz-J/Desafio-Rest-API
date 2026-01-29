@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -141,6 +142,16 @@ func (s *TaskService) UpdateTask(
 	}
 
 	return task, nil
+}
+
+// ------------------------LIST TASK--------------------------------
+func (s *TaskService) ListTask(ctx context.Context, status string) ([]*model.Task, error) {
+
+	tasks, err := s.repo.FindAll(ctx, status)
+	if err != nil {
+		return nil, fmt.Errorf("Error listing tasks: %w", err)
+	}
+	return tasks, nil
 }
 
 func TestCreateTask(t *testing.T) {
