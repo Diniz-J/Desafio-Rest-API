@@ -2,27 +2,16 @@ package main
 
 import (
 	"database/sql"
+
+	_ "github.com/go-sql-driver/mysql"
+
 	"log"
 	"net/http"
 	"os"
 
-	"github.com/gin-gonic/gin"
-)
-
-package main
-
-import (
-"database/sql"
-
-_ "github.com/go-sql-driver/mysql"
-
-"log"
-"net/http"
-"os"
-
-"github.com/DinizJ/desafio/internal/handler"
-"github.com/DinizJ/desafio/internal/repository"
-"github.com/DinizJ/desafio/internal/service"
+	"github.com/DinizJ/desafio/internal/handler"
+	"github.com/DinizJ/desafio/internal/repository"
+	"github.com/DinizJ/desafio/internal/service"
 )
 
 func main() {
@@ -69,4 +58,3 @@ func main() {
 		log.Fatalf("Erro ao rodar servidor: %v", err)
 	}
 }
-
