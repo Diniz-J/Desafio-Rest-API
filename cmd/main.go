@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
 
 	"log"
 	"net/http"
@@ -44,17 +45,17 @@ func main() {
 	hdl := handler.NewTaskHandler(svc)
 
 	//Config das rotas
-	mux := http.NewServeMux()
-	mux.HandleFunc("POST /api/v1/tasks", hdl.CreateTask)
-	mux.HandleFunc("GET /api/v1/tasks", hdl.ListTask)
-	mux.HandleFunc("GET /api/v1/tasks/{id}", hdl.GetTask)
-	mux.HandleFunc("PUT /api/v1/tasks/{id}", hdl.UpdateTask)
-	mux.HandleFunc("DELETE /api/v1/tasks/{id}", hdl.DeleteTask)
-	mux.HandleFunc("PATCH /api/v1/tasks/{id}/complete", hdl.CompleteTask)
+	router := mux.NewRouter()
+	router.HandleFunc("/api/v1/tasks", hdl.CreateTask).Methods("POST")
+	router.HandleFunc("/api/v1/tasks", hdl.ListTask).Methods("GET")
+	router.HandleFunc("/api/v1/tasks/{id}", hdl.GetTask).Methods("GET")
+	router.HandleFunc("/api/v1/tasks/{id}", hdl.UpdateTask).Methods("PUT")
+	router.HandleFunc("/api/v1/tasks/{id}", hdl.DeleteTask).Methods("DELETE")
+	router.HandleFunc("/api/v1/tasks/{id}/complete", hdl.CompleteTask).Methods("PATCH")
 
 	// Roda servidor
 	log.Println("Servidor rodando em :8080")
-	if err := http.ListenAndServe(":8080", mux); err != nil {
+	if err := http.ListenAndServe(":8080", router); err != nil {
 		log.Fatalf("Erro ao rodar servidor: %v", err)
 	}
 }
