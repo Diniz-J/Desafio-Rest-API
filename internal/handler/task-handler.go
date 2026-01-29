@@ -142,3 +142,20 @@ func (h *TaskHandler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func (h *TaskHandler) ListTasks(w http.ResponseWriter, r *http.Request) {
+
+	status := r.URL.Query().Get("status")
+
+	tasks, err := h.service.ListTasks(r.Context(), status)
+	if err != nil {
+		http.Error(w, "failed to list tasks", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(tasks); err != nil {
+		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+	}
+}
