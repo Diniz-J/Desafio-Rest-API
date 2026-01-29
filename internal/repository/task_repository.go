@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/DinizJ/desafio/internal/model"
@@ -64,7 +65,7 @@ func (r *TaskRepository) FindByID(ctx context.Context, id string) (*model.Task, 
 		&task.DeletedAt,
 	)
 
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	}
 
@@ -83,8 +84,10 @@ func (r *TaskRepository) FindAll(ctx context.Context, status string) ([]model.Ta
 		FROM tasks
 	`
 
-	var rows *sql.Rows
-	var err error
+	var (
+		rows *sql.Rows
+		err  error
+	)
 
 	if status != "" {
 		query += " WHERE status = ? "
@@ -153,5 +156,8 @@ func (r *TaskRepository) Delete(ctx context.Context, id string) error {
 	query := `
 		DELETE FROM tasks WHERE id = ?`
 	_, err := r.db.ExecContext(ctx, query, id)
-	return fmt.Errorf("erro ao deletar task:%w", err)
+	if err != nil {
+		return fmt.Errorf("erro ao deletar task:%w", err)
+	}
+	return nil
 }
