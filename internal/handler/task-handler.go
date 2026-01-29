@@ -16,8 +16,7 @@ func NewTaskHandler(svc *service.TaskService) *TaskHandler {
 	return &TaskHandler{service: svc}
 }
 
-// Cria nova tafera
-
+//--------------------------CREATE TASK-------------------------------
 func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 
 	//Parse request
@@ -56,6 +55,7 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//--------------------------GET TASK-------------------------------
 func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -78,6 +78,7 @@ func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+////--------------------------UPDATE TASK-------------------------------
 func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -119,6 +120,7 @@ func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//--------------------------DELETE TASK-------------------------------
 func (h *TaskHandler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -143,6 +145,7 @@ func (h *TaskHandler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+//--------------------------LIST TASK-------------------------------
 func (h *TaskHandler) ListTasks(w http.ResponseWriter, r *http.Request) {
 
 	status := r.URL.Query().Get("status")
