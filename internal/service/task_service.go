@@ -87,3 +87,39 @@ func (s *TaskService) CompleteTask(ctx context.Context, id string) (*model.Task,
 
 	return task, nil
 }
+
+func TestCreateTask(t *testing.T) {
+	tests := []struct {
+		name        string
+		title       string
+		description string
+		wantErr     bool
+		errMsg      string
+	}{
+		{
+			name:        "valid task",
+			title:       "Buy milk",
+			description: "2% milk",
+			wantErr:     false,
+		},
+		{
+			name:        "empty title",
+			title:       "",
+			description: "something",
+			wantErr:     true,
+			errMsg:      "title cannot be empty",
+		},
+		{
+			name:        "title too long",
+			title:       string(make([]byte, 256)),
+			description: "something",
+			wantErr:     true,
+			errMsg:      "title too long",
+		},
+		{
+			name:        "valid with empty description",
+			title:       "Task",
+			description: "",
+			wantErr:     false,
+		},
+	}
