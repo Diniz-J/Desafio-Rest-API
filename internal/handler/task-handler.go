@@ -77,3 +77,44 @@ func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to encode response", http.StatusInternalServerError)
 	}
 }
+
+func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	var req struct {
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		Status      string `json:"status"`
+		Priority    string `json:"priority"`
+	}
+
+	defer r.Body.Close()
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid request format", http.StatusBadRequest)
+		return
+	}
+
+	if req.Title == "" {
+		http.Error(w, "title is required", http.StatusBadRequest)
+		return
+	}
+
+	task, err := h.service.Update(r.Context(), id, req.Title, req.Description, req.Status, req.Priority)
+	if err != nil {
+		http.Error(w, "failed to update task", http.StatusInternalServerError)
+		return
+	}
+
+	if task == nil {
+		http.Error(w, "task not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(task); err != nil {
+		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+	}
+}
