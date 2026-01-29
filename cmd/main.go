@@ -24,9 +24,17 @@ func main() {
 	}
 	defer db.Close()
 
+	//Ping
 	if err := db.Ping(); err != nil {
 		log.Fatalf("Erro ao fazer ping: %v", err)
 	}
 	log.Printf("Conectado com sucesso")
+
+	//Inicializa as layers
+	repo := repository.NewTaskRepository(db)
+	svc := service.NewTaskService(repo)
+	hdl := handler.NewTaskHandler(svc)
+
+
 
 }
