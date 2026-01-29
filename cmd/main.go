@@ -24,4 +24,9 @@ func main() {
 	}
 	defer db.Close()
 
+	if err := db.Ping(); err != nil {
+		log.Fatalf("Erro ao fazer ping: %v", err)
+	}
+	log.Printf("Conectado com sucesso")
+
 }
