@@ -2,22 +2,18 @@ package main
 
 import (
 	"log"
-	"net/http"
-
-	"github.com/gin-gonic/gin"
+	"os"
 )
 
 func main() {
 
-	server := gin.Default()
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
+	dbUser := os.Getenv("DB_USER")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
 
-	server.GET("/ping", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{
-			"msg": "pong",
-		})
-	})
+	dsn := dbUser + ":" + dbPassword + "@tcp(" + dbHost + ":" + dbPort + ")/" + dbName
+	log.Printf("Conectando em: %s", dsn)
 
-	if err := server.Run(":8080"); err != nil {
-		log.Fatal(err)
-	}
 }
