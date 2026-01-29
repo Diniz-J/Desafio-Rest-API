@@ -21,6 +21,11 @@ type TaskService struct {
 }
 
 // ------------------------CREATE TASK--------------------------------
+// Adjust Layers
+func NewTaskService(repo *repository.TaskRepository) *TaskService {
+	return &TaskService{repo: repo}
+}
+
 func (s *TaskService) CreateTask(ctx context.Context, title string, description string) (*model.Task, error) {
 
 	if title == "" {
