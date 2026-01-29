@@ -64,3 +64,26 @@ func (s *TaskService) GetTask(ctx context.Context, id string) (*model.Task, erro
 
 	return task, nil
 }
+
+// Marca como concluída
+
+func (s *TaskService) CompleteTask(ctx context.Context, id string) (*model.Task, error) {
+	task, err := s.GetTask(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	//Valida transição de estado
+	if task.Status != model.StatusCompleted {
+		return nil, errors.New("task already completed")
+	}
+
+	task.Status = model.StatusCompleted
+	task.UpdatedAt = time.Now()
+
+	if err := s.repo.Update(ctx, task); err != nil {
+		return nil, err
+	}
+
+	return task, nil
+}
