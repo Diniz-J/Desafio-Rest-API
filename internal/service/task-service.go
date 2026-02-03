@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"testing"
 	"time"
 
 	"github.com/DinizJ/desafio/internal/model"
@@ -14,15 +13,16 @@ import (
 
 // Lógica de negócio, validações, chamadas ao repository
 
-// Validate
+// MELHORIA: Service agora usa interface em vez de tipo concreto
+// Isso facilita testes unitários com mocks e torna o código mais flexível
 
 type TaskService struct {
-	repo *repository.TaskRepository
+	repo repository.TaskRepositoryInterface
 }
 
 // ------------------------CREATE TASK--------------------------------
 // Adjust Layers
-func NewTaskService(repo *repository.TaskRepository) *TaskService {
+func NewTaskService(repo repository.TaskRepositoryInterface) *TaskService {
 	return &TaskService{repo: repo}
 }
 
@@ -81,8 +81,10 @@ func (s *TaskService) CompleteTask(ctx context.Context, id string) (*model.Task,
 		return nil, err
 	}
 
-	//Valida transição de estado
-	if task.Status != model.StatusCompleted {
+	// CORREÇÃO: A lógica estava invertida. Se o status JÁ É "completed",
+	// devemos retornar erro. A condição anterior verificava se era DIFERENTE (!= ),
+	// o que causava o comportamento oposto ao esperado.
+	if task.Status == model.StatusCompleted {
 		return nil, errors.New("task already completed")
 	}
 
@@ -128,18 +130,37 @@ func (s *TaskService) UpdateTask(
 		return nil, errors.New("task not found")
 	}
 
+	// MELHORIA: Validar title se fornecido
 	if title != "" {
+		if len(title) > 255 {
+			return nil, errors.New("title is too long (max 255)")
+		}
 		task.Title = title
 	}
+
 	if description != "" {
 		task.Description = description
 	}
+
+	// CORREÇÃO: Validar status enum se fornecido
+	// Antes aceitava qualquer valor, agora valida contra as constantes do model
 	if status != "" {
+		if status != model.StatusPending && status != model.StatusCompleted {
+			return nil, errors.New("invalid status: must be 'pending' or 'completed'")
+		}
 		task.Status = status
 	}
+
+	// CORREÇÃO: Validar priority enum se fornecido
+	// Antes aceitava qualquer valor, agora valida contra as constantes do model
 	if priority != "" {
+		if priority != model.PriorityLow && priority != model.PriorityMedium && priority != model.PriorityHigh {
+			return nil, errors.New("invalid priority: must be 'low', 'medium' or 'high'")
+		}
 		task.Priority = priority
 	}
+
+	task.UpdatedAt = time.Now()
 
 	err = s.repo.Update(ctx, task)
 	if err != nil {
@@ -157,89 +178,4 @@ func (s *TaskService) ListTask(ctx context.Context, status string) ([]model.Task
 		return nil, fmt.Errorf("Error listing tasks: %w", err)
 	}
 	return tasks, nil
-}
-
-func TestCreateTask(t *testing.T) {
-	tests := []struct {
-		name        string
-		title       string
-		description string
-		wantErr     bool
-		errMsg      string
-	}{
-		{
-			name:        "valid task",
-			title:       "Buy milk",
-			description: "2% milk",
-			wantErr:     false,
-		},
-		{
-			name:        "empty title",
-			title:       "",
-			description: "something",
-			wantErr:     true,
-			errMsg:      "title cannot be empty",
-		},
-		{
-			name:        "title too long",
-			title:       string(make([]byte, 256)),
-			description: "something",
-			wantErr:     true,
-			errMsg:      "title too long",
-		},
-		{
-			name:        "valid with empty description",
-			title:       "Task",
-			description: "",
-			wantErr:     false,
-		},
-	}
-
-	// Mock repository (veremos depois como fazer)
-	mockRepo := &mockRepository{}
-	service := &TaskService{repo: mockRepo}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			task, err := service.CreateTask(context.Background(), tt.title, tt.description)
-
-			//verifica erro
-			if tt.wantErr && err == nil {
-				t.Errorf("expected error, got nil")
-			}
-			if !tt.wantErr && err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
-
-			//Caso sucesso verifica resultado
-			if !tt.wantErr {
-				if task.Title != tt.title {
-					t.Errorf("expected %q, got %q", tt.title, task.Title)
-				}
-				if task.Status != model.StatusPending {
-					t.Errorf("expected status pending, got %q", task.Status)
-				}
-			}
-		})
-	}
-}
-
-// Teste simples
-func TestCompleteTask(t *testing.T) {
-	mockRepo := &mockRepository{}
-	service := &TaskService{repo: mockRepo}
-
-	//Arrange
-	mockRepo.SetupTask(&model.Task{ID: "1", Title: "Test", Status: model.StatusPending})
-
-	//Act
-	task, err := service.CompleteTask(context.Background(), "1")
-
-	//Assert
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
-	if task.Status != model.StatusCompleted {
-		t.Errorf("expected status completed, got %q", task.Status)
-	}
 }
