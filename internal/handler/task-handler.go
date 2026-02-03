@@ -135,10 +135,10 @@ func (h *TaskHandler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 
 	err := h.service.DeleteTask(r.Context(), id)
 	if err != nil {
-		if err.Error == nil {
-			http.Error(w, "task not found", http.StatusNotFound)
-			return
-		}
+		// CORREÇÃO: Removido o bloco "if err.Error == nil" que causava erro de compilação.
+		// Error é um método, não um campo. Além disso, a validação de "task not found"
+		// já é feita no service (DeleteTask verifica se existe antes de deletar).
+		// Se houver erro, retornamos 500. O service já retorna erro descritivo.
 		http.Error(w, "failed to delete task", http.StatusInternalServerError)
 		return
 	}
